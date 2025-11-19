@@ -82,7 +82,15 @@ router.post('/refresh', refreshTokenValidation, authController.refreshToken);
 router.get('/me', auth, authController.getMe);
 
 // Rutas de autenticación con GitHub
-router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get('/github', (req, res, next) => {
+  // Preservar el parámetro platform en el state de OAuth
+  const platform = req.query.platform || 'web';
+
+  passport.authenticate('github', {
+    scope: ['user:email'],
+    state: platform
+  })(req, res, next);
+});
 
 router.get('/github/callback',
   passport.authenticate('github', {
@@ -97,22 +105,38 @@ router.get('/github/callback',
       const tokens = generateTokens(req.user.id);
 
       // Detectar si viene de móvil o web
-      const isMobile = req.query.platform === 'mobile' || req.headers['user-agent']?.includes('Expo');
+      // Priorizar query parameter, luego state, luego user-agent
+      const platform = req.query.platform || req.query.state;
+      const userAgent = req.headers['user-agent'] || '';
+
+      const isMobile = platform === 'mobile' ||
+        userAgent.toLowerCase().includes('expo') ||
+        userAgent.toLowerCase().includes('android') ||
+        userAgent.toLowerCase().includes('iphone');
+
+      console.log('GitHub callback - Platform:', platform, 'User-Agent:', userAgent, 'isMobile:', isMobile);
 
       if (isMobile) {
         // Redirigir a la app móvil con deep linking
         const redirectUrl = `classroomapp://auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
+        console.log('Redirecting to mobile:', redirectUrl);
         return res.redirect(redirectUrl);
       } else {
         // Redirigir a frontend web
         const webRedirectUrl = process.env.FRONTEND_URL
           ? `${process.env.FRONTEND_URL}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`
           : `http://localhost:3000/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
+        console.log('Redirecting to web:', webRedirectUrl);
         return res.redirect(webRedirectUrl);
       }
     } catch (error) {
       console.error('Error en GitHub callback:', error);
-      const isMobile = req.query.platform === 'mobile' || req.headers['user-agent']?.includes('Expo');
+      const platform = req.query.platform || req.query.state;
+      const userAgent = req.headers['user-agent'] || '';
+      const isMobile = platform === 'mobile' ||
+        userAgent.toLowerCase().includes('expo') ||
+        userAgent.toLowerCase().includes('android') ||
+        userAgent.toLowerCase().includes('iphone');
 
       if (isMobile) {
         return res.redirect('classroomapp://auth/callback?error=token_generation_failed');
