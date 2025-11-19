@@ -1,13 +1,13 @@
 // Prisma Schema para Google Classroom MVP
-// Base de datos: MySQL
+// Base de datos: postgresql
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
 }
 
 // ========================================

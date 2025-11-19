@@ -1,6 +1,6 @@
 # 📚 Google Classroom MVP - Backend
 
-Backend para una aplicación móvil tipo Google Classroom, construido con **Node.js**, **Express**, **MySQL** y **Prisma ORM**.
+Backend para una aplicación móvil tipo Google Classroom, construido con **Node.js**, **Express**, **PostgreSQL** y **Prisma ORM**.
 
 ## 📌 Resumen rápido
 
@@ -17,14 +17,14 @@ Para la documentación completa de endpoints, ver: `docs/API.md` (se añadió en
 - Roles de usuario: `ADMIN`, `TEACHER`, `STUDENT`
 - Gestión de clases, anuncios, materiales, tareas y entregas
 - Validaciones con `express-validator`
-- ORM: Prisma (MySQL)
+- ORM: Prisma (PostgreSQL)
 
 ## 🚀 Inicio Rápido
 
 ### Requisitos
 
 - Node.js 16+
-- MySQL 8+
+- PostgreSQL 14+ (o Docker)
 - npm o yarn
 
 ### 1) Instalar dependencias

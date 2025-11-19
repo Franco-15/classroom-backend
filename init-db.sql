@@ -1,11 +1,10 @@
--- Dar todos los permisos al usuario classroom_user
-GRANT ALL PRIVILEGES ON *.* TO 'classroom_user'@'%' WITH GRANT OPTION;
+-- PostgreSQL initialization script
+-- Este script se ejecuta automáticamente al iniciar el contenedor
 
--- Permitir crear y eliminar bases de datos (necesario para shadow database)
-GRANT CREATE, DROP ON *.* TO 'classroom_user'@'%';
+-- Crear extensiones útiles (opcional)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Aplicar cambios
-FLUSH PRIVILEGES;
-
+-- El usuario y la base de datos ya son creados por las variables de entorno
 -- Mensaje de confirmación
-SELECT 'Permisos otorgados correctamente a classroom_user' AS status;
+SELECT 'Base de datos PostgreSQL inicializada correctamente' AS status;
