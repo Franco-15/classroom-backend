@@ -15,5 +15,5 @@
     "env": {
         "NODE_ENV": "production"
     },
-    "buildCommand": "npm run build"
+    "buildCommand": "npx prisma migrate deploy && npm run build"
 }
