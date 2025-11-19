@@ -87,19 +87,41 @@ router.get('/github', passport.authenticate('github', { scope: ['user:email'] })
 router.get('/github/callback',
   passport.authenticate('github', {
     session: false,
-    failureRedirect: 'classroomapp://auth/callback?error=authentication_failed'
+    failureRedirect: process.env.FRONTEND_URL
+      ? `${process.env.FRONTEND_URL}/auth/error?message=authentication_failed`
+      : 'classroomapp://auth/callback?error=authentication_failed'
   }),
   (req, res) => {
     try {
       // Generar tokens para el usuario autenticado
       const tokens = generateTokens(req.user.id);
 
-      // Redirigir a la app con los tokens como parámetros
-      const redirectUrl = `classroomapp://auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
-      res.redirect(redirectUrl);
+      // Detectar si viene de móvil o web
+      const isMobile = req.query.platform === 'mobile' || req.headers['user-agent']?.includes('Expo');
+
+      if (isMobile) {
+        // Redirigir a la app móvil con deep linking
+        const redirectUrl = `classroomapp://auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
+        return res.redirect(redirectUrl);
+      } else {
+        // Redirigir a frontend web
+        const webRedirectUrl = process.env.FRONTEND_URL
+          ? `${process.env.FRONTEND_URL}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`
+          : `http://localhost:3000/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
+        return res.redirect(webRedirectUrl);
+      }
     } catch (error) {
       console.error('Error en GitHub callback:', error);
-      res.redirect('classroomapp://auth/callback?error=token_generation_failed');
+      const isMobile = req.query.platform === 'mobile' || req.headers['user-agent']?.includes('Expo');
+
+      if (isMobile) {
+        return res.redirect('classroomapp://auth/callback?error=token_generation_failed');
+      } else {
+        const errorUrl = process.env.FRONTEND_URL
+          ? `${process.env.FRONTEND_URL}/auth/error?message=token_generation_failed`
+          : `http://localhost:3000/auth/error?message=token_generation_failed`;
+        return res.redirect(errorUrl);
+      }
     }
   }
 );
