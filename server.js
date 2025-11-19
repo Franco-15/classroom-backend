@@ -133,11 +133,11 @@ app.listen(PORT, async () => {
   // Verificar conexión a base de datos
   try {
     await prisma.$connect();
-    console.log('✅ Conectado a MySQL con Prisma');
+    console.log('✅ Conectado a PostgreSQL con Prisma');
   } catch (error) {
     console.error('❌ Error al conectar a la base de datos:', error.message);
     console.log('\n💡 Asegúrate de:');
-    console.log('1. Tener MySQL instalado y corriendo');
+    console.log('1. Tener PostgreSQL instalado y corriendo (o Docker)');
     console.log('2. Configurar DATABASE_URL en .env');
     console.log('3. Ejecutar: npx prisma migrate dev\n');
   }
